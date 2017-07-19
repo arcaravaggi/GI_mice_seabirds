@@ -222,9 +222,9 @@ bplot <- function(dat, x, y, w=0.85, min, max, labx, laby, text.size.x,
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           text=element_text(family="serif"),
-          axis.text.x = element_text(size = text.size.x, angle = 35, hjust = 1),
+          axis.text.x = element_text(size = text.size.x),
           axis.text.y = element_text(size = text.size.y),
-          axis.title.x = element_text(size=title.size,face="bold", hjust = 1.5),
+          axis.title.x = element_text(size=title.size,face="bold"),
           axis.title.y = element_text(size=title.size,face="bold"),
           panel.spacing.y=unit(3, "lines"))+
     annotate("text", x = xa, y = ya, size = ann.size, label = laba)+
@@ -240,19 +240,21 @@ addline_format <- function(x,...){
 
 
 p1 <- bplot(dat = above, x = above$species, y = above$gough.bs, w = 0.85, min = above$ymin, max = above$ymax,
-            labx="Species", laby = "Average breeding success", text.size.x = 14, text.size.y = 14, title.size = 16, 
+            labx="", laby = "", text.size.x = 14, text.size.y = 14, title.size = 16, 
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "a)")
 
 p2 <- bplot(dat = below, x = below$species, y = below$gough.bs, w = 0.85, min = below$ymin, max = below$ymax,
-            labx="", laby = "", text.size.x = 14, text.size.y = 0, title.size = 16,
+            labx="Species", laby = "                                                             Mean breeding success", 
+            text.size.x = 14, text.size.y = 14, title.size = 16,
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "b)")
 
 p3 <- bplot(dat = summer, x = summer$species, y = summer$gough.bs, w = 0.85, min = summer$ymin, max = summer$ymax,
-            labx="Species", laby = "Average breeding success", text.size.x = 14, text.size.y = 14, title.size = 16,
+            labx="", laby = "", text.size.x = 14, text.size.y = 14, title.size = 16,
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "a)")
 
 p4 <- bplot(dat = winter, x = winter$species, y = winter$gough.bs, w = 0.85, min = winter$ymin, max = winter$ymax,
-            labx="", laby = "", text.size.x = 14, text.size.y = 0, title.size = 16,
+            labx="Species", laby = "                                                             Mean breeding success",
+            text.size.x = 14, text.size.y = 14, title.size = 16,
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "b)")
 
 # Multiple plot function
@@ -305,12 +307,13 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 # Export multiplot
 
-png("plot_Nesters.png", width = 12, height = 4, units = 'in', res = 600)
-multiplot(p1, p2, cols=2)
+png("plot_Nesters.png", width = 7.2, height = 8, units = 'in', res = 600)
+multiplot(p1, p2, cols=1)
 dev.off()
 
-png("plot_Seasons.png", width = 12, height = 4, units = 'in', res = 300)
-multiplot(p3, p4, cols=2)
+
+png("plot_Seasons.png", width = 7.2, height = 8, units = 'in', res = 300)
+multiplot(p3, p4, cols=1)
 dev.off()
 
 

@@ -215,12 +215,14 @@ bplot <- function(dat, x, y, w=0.85, min, max, labx, laby, text.size.x,
     geom_bar(stat = "identity", width=w, fill = "grey", colour="black")+
     geom_errorbar(aes(ymin = min, ymax = max),width=w/2, position=position_dodge(.9))+
     scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
+    scale_x_discrete(breaks=unique(x), 
+                     labels=addline_format(x)) +
     theme_bw() + 
     theme(plot.background = element_blank(),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
           text=element_text(family="serif"),
-          axis.text.x = element_text(size = text.size.x, angle = 30, hjust = 1),
+          axis.text.x = element_text(size = text.size.x, angle = 35, hjust = 1),
           axis.text.y = element_text(size = text.size.y),
           axis.title.x = element_text(size=title.size,face="bold", hjust = 1.5),
           axis.title.y = element_text(size=title.size,face="bold"),
@@ -229,20 +231,27 @@ bplot <- function(dat, x, y, w=0.85, min, max, labx, laby, text.size.x,
     labs(x=labx,y=laby)
 }
 
+# Function for customised x axis labels (with breaks)
 
-p1 <- bplot(dat = above, x = above$abbr, y = above$gough.bs, w = 0.85, min = above$ymin, max = above$ymax,
+addline_format <- function(x,...){
+  gsub('\\s','\n',x)
+}
+
+
+
+p1 <- bplot(dat = above, x = above$species, y = above$gough.bs, w = 0.85, min = above$ymin, max = above$ymax,
             labx="Species", laby = "Average breeding success", text.size.x = 14, text.size.y = 14, title.size = 16, 
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "a)")
 
-p2 <- bplot(dat = below, x = below$abbr, y = below$gough.bs, w = 0.85, min = below$ymin, max = below$ymax,
+p2 <- bplot(dat = below, x = below$species, y = below$gough.bs, w = 0.85, min = below$ymin, max = below$ymax,
             labx="", laby = "", text.size.x = 14, text.size.y = 0, title.size = 16,
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "b)")
 
-p3 <- bplot(dat = summer, x = summer$abbr, y = summer$gough.bs, w = 0.85, min = summer$ymin, max = summer$ymax,
+p3 <- bplot(dat = summer, x = summer$species, y = summer$gough.bs, w = 0.85, min = summer$ymin, max = summer$ymax,
             labx="Species", laby = "Average breeding success", text.size.x = 14, text.size.y = 14, title.size = 16,
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "a)")
 
-p4 <- bplot(dat = winter, x = winter$abbr, y = winter$gough.bs, w = 0.85, min = winter$ymin, max = winter$ymax,
+p4 <- bplot(dat = winter, x = winter$species, y = winter$gough.bs, w = 0.85, min = winter$ymin, max = winter$ymax,
             labx="", laby = "", text.size.x = 14, text.size.y = 0, title.size = 16,
             xa = 0.65, ya = 0.67, ann.size = 5, laba = "b)")
 
@@ -296,11 +305,11 @@ multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
 
 # Export multiplot
 
-png("plot_Nesters.png", width = 6, height = 4, units = 'in', res = 600)
+png("plot_Nesters.png", width = 12, height = 4, units = 'in', res = 600)
 multiplot(p1, p2, cols=2)
 dev.off()
 
-png("plot_Seasons.png", width = 6, height = 4, units = 'in', res = 300)
+png("plot_Seasons.png", width = 12, height = 4, units = 'in', res = 300)
 multiplot(p3, p4, cols=2)
 dev.off()
 

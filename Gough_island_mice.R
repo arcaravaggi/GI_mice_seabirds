@@ -1,17 +1,18 @@
 setwd("G:/Dropbox/Academic/Projects & Papers/Gough Island mice/Data")
-setwd("C:/Users/Anthony Caravaggi/Dropbox/Academic/Projects & Papers/Gough Island mice/Data")
+setwd("C:/Users/Anthony Caravaggi/Dropbox/Academic/Projects & Papers/Gough Island mice/Data - revised")
 
 library(plyr)
 library(ggplot2)
+library(cowplot)
 
-bDAT = read.csv("giDAT.csv", header = TRUE)
+bDAT = read.csv("giDAT.csv", header = TRUE, stringsAsFactors=FALSE)
 bDAT["gough.se"] <- bDAT$gough.sd/sqrt(bDAT$gough.count)
 bDAT["typical.se"] <- bDAT$typical.sd/sqrt(bDAT$typical.count)
 bDAT["bs.diff"] <- bDAT$typical.bs-bDAT$gough.bs
 bDAT["se.diff"] <- abs(bDAT$typical.se-bDAT$gough.se)
 
 # Function to calculate minimum and maximum variance based on n randomly
-# generated integers (nested tnorm), with truncation
+# generated integers from a random distribution (nested tnorm), with truncation
 # 
 # dat = dataframe
 # n = number of randomly generate integers
@@ -81,8 +82,11 @@ gDAT["max_err"] <- minmax(dat = gDAT, m = gDAT$gough.bs, s = bDAT$gough.se, u = 
 gDAT["obs.c"] <- popfunc (dat = gDAT, pop = gDAT$pop, bs = gDAT$gough.bs, pe = "obs.c")
 gDAT["min.c"] <- popfunc (dat = gDAT, pop = gDAT$pop, bs = gDAT$gough.bs, min.e = gDAT$min_err, pe = "min.c")
 gDAT["max.c"] <- popfunc (dat = gDAT, pop = gDAT$pop, bs = gDAT$gough.bs, max.e = gDAT$max_err, pe = "max.c")
+gDAT[9,c(6:8)] <- c(150, 110, 190) # Southern giant petrel; rounded to 10, a-priori
+gDAT[10,c(6:8)] <- c(550, 400, 700) # Tristan albatross; rounded to 50, a-priori
 gDAT["mean.c"] <- ((gDAT$max.c-gDAT$obs.c)+
                          (gDAT$obs.c-gDAT$min.c))/2
+
 
 # Typical data (uninvaded islands)
 
@@ -95,6 +99,8 @@ tDAT["max_err"] <- minmax(dat = tDAT, m = tDAT$typical.bs, s = bDAT$typical.se, 
 tDAT["obs.c"] <- popfunc (dat = tDAT, pop = tDAT$pop, bs = tDAT$typical.bs, pe = "obs.c")
 tDAT["min.c"] <- popfunc (dat = tDAT, pop = tDAT$pop, bs = tDAT$typical.bs, min.e = tDAT$min_err, pe = "min.c")
 tDAT["max.c"] <- popfunc (dat = tDAT, pop = tDAT$pop, bs = tDAT$typical.bs, max.e = tDAT$max_err, pe = "max.c")
+tDAT[9,c(6:8)] <- c(180, 150, 200) # Southern giant petrel; rounded to 10, a-priori
+tDAT[10,c(6:8)] <- c(1250, 1150, 1400) # Tristan albatross; rounded to 50, a-priori
 tDAT["mean.c"] <- ((tDAT$max.c-tDAT$obs.c)+
                      (tDAT$obs.c-tDAT$min.c))/2
 
@@ -109,6 +115,8 @@ pDAT["max_err"] <- minmax(dat = pDAT, m = pDAT$difference.bs, s = bDAT$se.diff, 
 pDAT["obs.c"] <- popfunc (dat = pDAT, pop = pDAT$pop, bs = pDAT$difference.bs, pe = "obs.c")
 pDAT["min.c"] <- popfunc (dat = pDAT, pop = pDAT$pop, bs = pDAT$difference.bs, min.e = pDAT$min_err, pe = "min.c")
 pDAT["max.c"] <- popfunc (dat = pDAT, pop = pDAT$pop, bs = pDAT$difference.bs, max.e = pDAT$max_err, pe = "max.c")
+pDAT[9,c(6:8)] <- c(30, 0, 50) # Southern giant petrel; rounded to 10, a-priori
+pDAT[10,c(6:8)] <- c(700, 650, 750) # Tristan albatross; rounded to 50, a-priori
 pDAT["mean.c"] <- ((pDAT$max.c-pDAT$obs.c)+
                      (pDAT$obs.c-pDAT$min.c))/2
 
@@ -131,6 +139,8 @@ chisq.test(pop)
 sDAT<-bDAT
 sDAT["ymin"] <- sDAT$gough.bs-sDAT$gough.se
 sDAT["ymax"] <- sDAT$gough.bs+sDAT$gough.se
+sDAT["size"] <- c(520, 1800, 160, 830, 1000, 160, 250, 2100, 3800, 6800) 
+sDAT$species <- factor(sDAT$species, levels = sDAT$species[order(sDAT$size)])
 
 # Split data by each category
 
@@ -141,18 +151,28 @@ nest <- split(sDAT, sDAT$nest)
 above <- nest$A
 below <- nest$B
 
+summer <- summer[order(summer$size),]
+winter <- winter[order(winter$size),]
+above <- above[order(above$size),]
+below <- below[order(below$size),]
 
 # t-tests between
 
 t.test(sDAT$gough.bs~sDAT$nest,data=sDAT) 
 t.test(sDAT$gough.bs~sDAT$season,data=sDAT) 
 
+# remove outliers in great shearwater and Tristan albatross
+
+s2DAT <- sDAT[!(sDAT$abbr=="GRSH"),]
+s2DAT <- s2DAT[!(s2DAT$abbr=="TRAL"),]
+
+t.test(s2DAT$gough.bs~s2DAT$nest,data=s2DAT) 
+
 # Remove both prions
 
-s2DAT <- sDAT[!(sDAT$abbr=="MAPR"),]
-s3DAT <- s2DAT[!(s2DAT$abbr=="BBPR"),]
+s3DAT <- sDAT[!(sDAT$abbr=="MAPR"),]
+s3DAT <- s3DAT[!(s3DAT$abbr=="BBPR"),]
 
-t.test(s2DAT$gough.bs~s2DAT$season,data=s2DAT)
 t.test(s3DAT$gough.bs~s3DAT$season,data=s3DAT)
 
 
@@ -171,66 +191,27 @@ cohens_d <- function(x, y) {
   cd  <- md/csd             
 }
 
-nest.D <- cohensD(above$gough.bs, below$gough.bs)
+nest.D <- cohens_d(above$gough.bs, below$gough.bs)
+season.D <- cohens_d(summer$gough.bs, winter$gough.bs)
 
 # Season minus MacGillivray's prion
-
-season2 <- split(s2DAT, s2DAT$season)
-summer2 <- season2$S
-winter2 <- season2$W
-
+#
+#season2 <- split(s2DAT, s2DAT$season)
+#summer2 <- season2$S
+#winter2 <- season2$W
+#
 # Season minus MacGillivray's and broad-billed prions
-
-season3 <- split(s3DAT, s3DAT$season)
-summer3 <- season3$S
-winter3 <- season3$W
-
-season.MAPR.D <- cohensD(summer2$gough.bs, winter2$gough.bs)
-season.BBPR.D <- cohensD(summer3$gough.bs, winter3$gough.bs)
+#
+#season3 <- split(s3DAT, s3DAT$season)
+#summer3 <- season3$S
+#winter3 <- season3$W
+#
+#season.MAPR.D <- cohens_d(summer2$gough.bs, winter2$gough.bs)
+#season.BBPR.D <- cohens_d(summer3$gough.bs, winter3$gough.bs)
 
 # Plot  and pair plots for each category (above/below ground; summer/winter)
+# Requires theme_ac1 https://github.com/arcaravaggi/browncoat/blob/master/theme_ac1.R
 #
-# dat = dataframe
-# x = categorical data
-# y = continuous data
-# w = bar width
-# min = minimum error bar value
-# max = maximum error bar value
-# labx = x axis label
-# laby = y axis label
-# text.size.x = a axis text size
-# text.size.y = y axis text size
-# title.size = axis label size
-#
-# Annotations are used for corner labels
-# xa = annotation x position
-# ya = annotation y position
-# ann.size = annotation text size
-# laba = annotation text
-
-bplot <- function(dat, x, y, w=0.85, min, max, labx, laby, text.size.x, 
-                  text.size.y, title.size, xa, ya, ann.size, laba) {
-  localenv <- environment()
-  ggplot(dat, aes(x, y))+
-    geom_bar(stat = "identity", width=w, fill = "grey", colour="black")+
-    geom_errorbar(aes(ymin = min, ymax = max),width=w/2, position=position_dodge(.9))+
-    scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
-    scale_x_discrete(breaks=unique(x), 
-                     labels=addline_format(x)) +
-    theme_bw() + 
-    theme(plot.background = element_blank(),
-          panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank(),
-          text=element_text(family="serif"),
-          axis.text.x = element_text(size = text.size.x),
-          axis.text.y = element_text(size = text.size.y),
-          axis.title.x = element_text(size=title.size,face="bold"),
-          axis.title.y = element_text(size=title.size,face="bold"),
-          panel.spacing.y=unit(3, "lines"))+
-    annotate("text", x = xa, y = ya, size = ann.size, label = laba)+
-    labs(x=labx,y=laby)
-}
-
 # Function for customised x axis labels (with breaks)
 
 addline_format <- function(x,...){
@@ -238,103 +219,128 @@ addline_format <- function(x,...){
 }
 
 
-
-p1 <- bplot(dat = above, x = above$species, y = above$gough.bs, w = 0.85, min = above$ymin, max = above$ymax,
-            labx="", laby = "", text.size.x = 14, text.size.y = 14, title.size = 16, 
-            xa = 0.65, ya = 0.67, ann.size = 5, laba = "a)")
-
-p2 <- bplot(dat = below, x = below$species, y = below$gough.bs, w = 0.85, min = below$ymin, max = below$ymax,
-            labx="Species", laby = "                                                             Mean breeding success", 
-            text.size.x = 14, text.size.y = 14, title.size = 16,
-            xa = 0.65, ya = 0.67, ann.size = 5, laba = "b)")
-
-p3 <- bplot(dat = summer, x = summer$species, y = summer$gough.bs, w = 0.85, min = summer$ymin, max = summer$ymax,
-            labx="", laby = "", text.size.x = 14, text.size.y = 14, title.size = 16,
-            xa = 0.65, ya = 0.67, ann.size = 5, laba = "a)")
-
-p4 <- bplot(dat = winter, x = winter$species, y = winter$gough.bs, w = 0.85, min = winter$ymin, max = winter$ymax,
-            labx="Species", laby = "                                                             Mean breeding success",
-            text.size.x = 14, text.size.y = 14, title.size = 16,
-            xa = 0.65, ya = 0.67, ann.size = 5, laba = "b)")
-
-# Multiple plot function
-#
-# From http://www.cookbook-r.com/Graphs/Multiple_graphs_on_one_page_(ggplot2)/
-#
-# ggplot objects can be passed in ..., or to plotlist (as a list of ggplot objects)
-# - cols:   Number of columns in layout
-# - layout: A matrix specifying the layout. If present, 'cols' is ignored.
-#
-# If the layout is something like matrix(c(1,2,3,3), nrow=2, byrow=TRUE),
-# then plot 1 will go in the upper left, 2 will go in the upper right, and
-# 3 will go all the way across the bottom.
-#
-multiplot <- function(..., plotlist=NULL, file, cols=1, layout=NULL) {
-  library(grid)
-  
-  # Make a list from the ... arguments and plotlist
-  plots <- c(list(...), plotlist)
-  
-  numPlots = length(plots)
-  
-  # If layout is NULL, then use 'cols' to determine layout
-  if (is.null(layout)) {
-    # Make the panel
-    # ncol: Number of columns of plots
-    # nrow: Number of rows needed, calculated from # of cols
-    layout <- matrix(seq(1, cols * ceiling(numPlots/cols)),
-                     ncol = cols, nrow = ceiling(numPlots/cols))
-  }
-  
-  if (numPlots==1) {
-    print(plots[[1]])
-    
-  } else {
-    # Set up the page
-    grid.newpage()
-    pushViewport(viewport(layout = grid.layout(nrow(layout), ncol(layout))))
-    
-    # Make each plot, in the correct location
-    for (i in 1:numPlots) {
-      # Get the i,j matrix positions of the regions that contain this subplot
-      matchidx <- as.data.frame(which(layout == i, arr.ind = TRUE))
-      
-      print(plots[[i]], vp = viewport(layout.pos.row = matchidx$row,
-                                      layout.pos.col = matchidx$col))
-    }
-  }
-}
-
-# Export multiplot
-
-png("plot_Nesters.png", width = 7.2, height = 8, units = 'in', res = 600)
-multiplot(p1, p2, cols=1)
-dev.off()
-
-
-png("plot_Seasons.png", width = 7.2, height = 8, units = 'in', res = 300)
-multiplot(p3, p4, cols=1)
-dev.off()
-
-
-# Could also use facet plots, as below, though adding corner labels is trickier
-
-ggplot(sDAT, aes(sDAT$abbr, sDAT$gough.bs))+
+p1 <- ggplot(above, aes(x = above$species, y = above$gough.bs))+
   geom_bar(stat = "identity", width=0.85, fill = "grey", colour="black")+
-  geom_errorbar(aes(ymin = sDAT$ymin, ymax = sDAT$ymax),width=0.5, position=position_dodge(.9))+
-  facet_grid(. ~ sDAT$nest, scales = "free", space = "free")+
+  geom_errorbar(aes(ymin = above$ymin, ymax = above$ymax),width=0.85/2, position=position_dodge(.9))+
   scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
-  theme_bw() + 
+  scale_x_discrete(breaks=unique(above$species), 
+                   labels=addline_format(above$species)) +
+  theme_ac1() + 
   theme(plot.background = element_blank(),
         panel.grid.major = element_blank(),
         panel.grid.minor = element_blank(),
-        panel.spacing = unit(2, "lines"),
         text=element_text(family="serif"),
-        strip.text.x = element_blank(),
-        axis.text.x = element_text(size = 16, angle = 30, hjust = 1),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(size=14,face="bold"),
+        panel.spacing.y=unit(3, "lines"))+
+  labs(x = "Average breeding success",y = "Species")
+
+
+p2 <- ggplot(below, aes(x = below$species, y = below$gough.bs))+
+  geom_bar(stat = "identity", width=0.85, fill = "grey", colour="black")+
+  geom_errorbar(aes(ymin = below$ymin, ymax = below$ymax),width=0.85/2, position=position_dodge(.9))+
+  scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
+  scale_x_discrete(breaks=unique(below$species), 
+                   labels=addline_format(below$species)) +
+  theme_ac1() + 
+  theme(plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        text=element_text(family="serif"),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_text(size=14,face="bold"),
+        axis.title.y = element_text(size=14,face="bold"),
+        panel.spacing.y=unit(3, "lines"))+
+  labs(x = "Average breeding success",y = "Species")
+
+p12 <- ggdraw()+
+  draw_plot(p1, x = 0, y = 0.5, width = 0.65, height = 0.5) +
+  draw_plot(p2, x = 0, y = 0, width = 1, height = 0.5) +
+  draw_plot_label(label = c("a)", "b)"), size = 14, x = c(0,0), y = c(1,0.5))
+
+ggsave("plot_Nesters.png", p12, height = 10, width = 10, dpi = 600)
+
+p3 <- ggplot(winter, aes(x = winter$species, y = winter$gough.bs))+
+  geom_bar(stat = "identity", width=0.85, fill = "grey", colour="black")+
+  geom_errorbar(aes(ymin = winter$ymin, ymax = winter$ymax),width=0.85/2, position=position_dodge(.9))+
+  scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
+  scale_x_discrete(breaks=unique(winter$species), 
+                   labels=addline_format(winter$species)) +
+  theme_ac1() + 
+  theme(plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        text=element_text(family="serif"),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_text(size=14,face="bold"),
+        axis.title.y = element_text(size=14,face="bold"),
+        panel.spacing.y=unit(3, "lines"))+
+  labs(x = "",y = "Species")
+
+p4 <- ggplot(summer, aes(x = summer$species, y = summer$gough.bs))+
+  geom_bar(stat = "identity", width=0.85, fill = "grey", colour="black")+
+  geom_errorbar(aes(ymin = summer$ymin, ymax = summer$ymax),width=0.85/2, position=position_dodge(.9))+
+  scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
+  scale_x_discrete(breaks=unique(summer$species), 
+                   labels=addline_format(summer$species)) +
+  theme_ac1() + 
+  theme(plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        text=element_text(family="serif"),
+        axis.text.x = element_text(size = 14),
+        axis.text.y = element_text(size = 14),
+        axis.title.x = element_text(size=14,face="bold"),
+        axis.title.y = element_text(size=14,face="bold"),
+        panel.spacing.y=unit(3, "lines"))+
+  labs(x = "Average breeding success",y = "Species") 
+
+p34 <- ggdraw()+
+draw_plot(p3, x = 0, y = 0.5, width = 0.45, height = 0.5) +
+  draw_plot(p4, x = 0, y = 0, width = 1, height = 0.5) +
+  draw_plot_label(label = c("a)", "b)"), size = 14, x = c(0,0), y = c(1,0.5))
+
+ggsave("plot_Seasons.png", p34, height = 10, width = 10, dpi = 600)
+
+# Horizontal bars
+
+h1 <- ggplot(sDAT, aes(x = sDAT$species, y = sDAT$gough.bs, fill = sDAT$nest))+
+  geom_bar(stat = "identity", width=0.85, colour="black")+
+  coord_flip()+
+  geom_errorbar(aes(ymin = sDAT$ymin, ymax = sDAT$ymax),width=0.85/2, position=position_dodge(.9))+
+  scale_y_continuous(expand = c(0, 0), limits = c(0,0.7))+
+  scale_x_discrete(breaks=unique(sDAT$species), 
+                   labels=sDAT$species) +
+  scale_fill_manual(values=c("#8c96c6", "#edf8fb"),
+                    name="Nesting\nlocation",
+                    breaks=c("A", "B"),
+                    labels=c("Above-ground", "Below-ground"))+
+  theme_ac1() + 
+  theme(plot.background = element_blank(),
+        panel.grid.major = element_blank(),
+        panel.grid.minor = element_blank(),
+        text=element_text(family="serif"),
+        axis.text.x = element_text(size = 16),
         axis.text.y = element_text(size = 16),
         axis.title.x = element_text(size=16,face="bold"),
         axis.title.y = element_text(size=16,face="bold"),
-        panel.spacing.y=unit(3, "lines"))+
-  labs(x="Species",y="Average breeding success")
+        panel.spacing.y=unit(3, "lines"),
+        legend.justification=c(1,0), 
+        legend.position=c(1,0),
+        legend.title = element_text(size=16, face="bold"),
+        legend.text = element_text(size =16),
+        legend.background = element_rect(colour = 'transparent', fill = 'transparent'))+
+  labs(x = "Species",y = "Mean breeding success") +
+  geom_point(x = 4, y = 0.4, color = "black", shape=23, fill="black", size=5) +
+  geom_point(x = 6, y = 0.475, color = "black", shape=23, fill="black", size=5) +
+  geom_point(x = 10, y = 0.37, color = "black", shape=23, fill="black", size=5)
+
+
+ggsave("plot_NS.png", h1, height = 7, width = 7, dpi = 600)
+
+
 

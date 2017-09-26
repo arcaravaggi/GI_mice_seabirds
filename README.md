@@ -1,8 +1,6 @@
 # Gough_seabirds
 
-Data and R scripts relating to the methods described in Caravaggi *et al.* (*in dev*).  
-
-Caravaggi A, Cuthbert RJ, Ryan PG, Cooper J, Bond A (in development) The impacts of non-native Rodents of Unusual Size  on the breeding success of nesting seabirds on Gough Island.  
+Data and R scripts relating to the methods described in Caravaggi A, Cuthbert RJ, Ryan PG, Cooper J, Bond A (in development) The impacts of non-native Rodents of Unusual Size  on the breeding success of nesting seabirds on Gough Island.  
 
 ### Contents
 

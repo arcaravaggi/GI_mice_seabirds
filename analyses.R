@@ -251,8 +251,8 @@ popfunc <- function(dat, pop, bs, r = 1000, min.e, max.e, pe){
 # Create a data frame and calculate  estimates for Gough Island
 
 gDAT <- data.frame(bDAT$species, bDAT$est_pop, bDAT$gough.bs)
-gDAT <- rename(gDAT, c("bDAT.species"="species", "bDAT.est_pop" = "pop",
-                       "bDAT.gough.bs"="gough.bs"))
+names(gDAT) <- c("bDAT.species"="species", "bDAT.est_pop" = "pop",
+                       "bDAT.gough.bs"="gough.bs")
 gDAT["min_err"] <- minmax(dat = gDAT, m = gDAT$gough.bs, s = bDAT$gough.se, l=0, fn="min.e")
 gDAT["max_err"] <- minmax(dat = gDAT, m = gDAT$gough.bs, s = bDAT$gough.se, u = 1, fn="max.e")
 gDAT["obs.c"] <- popfunc (dat = gDAT, pop = gDAT$pop, bs = gDAT$gough.bs, pe = "obs.c")
@@ -267,16 +267,16 @@ gDAT["mean.c"] <- ((gDAT$max.c-gDAT$obs.c)+
 # Typical data (uninvaded islands)
 
 tDAT <- data.frame(bDAT$species, bDAT$est_pop, bDAT$typical.bs)
-tDAT <- rename(tDAT, c("bDAT.species"="species", "bDAT.est_pop" = "pop",
-                       "bDAT.typical.bs"="typical.bs"))
+names(tDAT) <- c("bDAT.species"="species", "bDAT.est_pop" = "pop",
+                       "bDAT.typical.bs"="typical.bs")
 
 tDAT["min_err"] <- minmax(dat = tDAT, m = tDAT$typical.bs, s = bDAT$typical.se, l=0, fn="min.e")
 tDAT["max_err"] <- minmax(dat = tDAT, m = tDAT$typical.bs, s = bDAT$typical.se, u=1, fn="max.e")
 tDAT["obs.c"] <- popfunc (dat = tDAT, pop = tDAT$pop, bs = tDAT$typical.bs, pe = "obs.c")
 tDAT["min.c"] <- popfunc (dat = tDAT, pop = tDAT$pop, bs = tDAT$typical.bs, min.e = tDAT$min_err, pe = "min.c")
 tDAT["max.c"] <- popfunc (dat = tDAT, pop = tDAT$pop, bs = tDAT$typical.bs, max.e = tDAT$max_err, pe = "max.c")
-tDAT[9,c(6:8)] <- c(180, 150, 200) # Southern giant petrel; rounded to 50, a-priori
-tDAT[10,c(6:8)] <- c(1250, 1150, 1400) # Tristan albatross; rounded to 50, a-priori
+tDAT[9,c(7:9)] <- c(180, 150, 200) # Southern giant petrel; rounded to 50, a-priori
+tDAT[10,c(7:9)] <- c(1250, 1150, 1400) # Tristan albatross; rounded to 50, a-priori
 tDAT["mean.c"] <- ((tDAT$max.c-tDAT$obs.c)+
                      (tDAT$obs.c-tDAT$min.c))/2
 
@@ -284,15 +284,15 @@ tDAT["mean.c"] <- ((tDAT$max.c-tDAT$obs.c)+
 # Calculate difference between population estimates and relative impact of mice
 
 pDAT <- data.frame(bDAT$species, bDAT$est_pop, bDAT$bs.diff)
-pDAT <- rename(pDAT, c("bDAT.species"="species", "bDAT.est_pop" = "pop",
-                       "bDAT.bs.diff"="difference.bs"))
+names(pDAT) <- c("bDAT.species"="species", "bDAT.est_pop" = "pop",
+                       "bDAT.bs.diff"="difference.bs")
 pDAT["min_err"] <- minmax(dat = pDAT, m = pDAT$difference.bs, s = bDAT$se.diff, l=0, fn="min.e")
 pDAT["max_err"] <- minmax(dat = pDAT, m = pDAT$difference.bs, s = bDAT$se.diff, u=1, fn="max.e")
 pDAT["obs.c"] <- popfunc (dat = pDAT, pop = pDAT$pop, bs = pDAT$difference.bs, pe = "obs.c")
 pDAT["min.c"] <- popfunc (dat = pDAT, pop = pDAT$pop, bs = pDAT$difference.bs, min.e = pDAT$min_err, pe = "min.c")
 pDAT["max.c"] <- popfunc (dat = pDAT, pop = pDAT$pop, bs = pDAT$difference.bs, max.e = pDAT$max_err, pe = "max.c")
-pDAT[9,c(6:8)] <- c(30, 0, 50) # Southern giant petrel; rounded to 50, a-priori
-pDAT[10,c(6:8)] <- c(700, 650, 750) # Tristan albatross; rounded to 50, a-priori
+pDAT[9,c(7:9)] <- c(30, 0, 50) # Southern giant petrel; rounded to 50, a-priori
+pDAT[10,c(7:9)] <- c(700, 650, 750) # Tristan albatross; rounded to 50, a-priori
 pDAT["mean.c"] <- ((pDAT$max.c-pDAT$obs.c)+
                      (pDAT$obs.c-pDAT$min.c))/2
 

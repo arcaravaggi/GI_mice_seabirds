@@ -55,8 +55,7 @@ h1 <- ggplot(gsum, aes(x = species, y = bs, fill = nest))+
                    labels=gsum$species) +
   scale_fill_manual(values=c("#bebebe", "#FFFFFF"),
                     name="Nesting\nlocation",
-                    breaks=c("A", "B"),
-                    labels=c("Above-ground", "Below-ground"))+
+                    labels=c("Above-ground", "Below-ground")) +
   theme_ac1() + 
   theme(plot.background = element_blank(),
         panel.grid.major = element_blank(),
@@ -67,8 +66,8 @@ h1 <- ggplot(gsum, aes(x = species, y = bs, fill = nest))+
         axis.title.x = element_text(size=16,face="bold"),
         axis.title.y = element_text(size=16,face="bold"),
         panel.spacing.y=unit(3, "lines"),
-        legend.justification=c(1,0), 
-        legend.position=c(1,0),
+        legend.justification = c(1,0), 
+     #   legend.position = c(0.1, 0),
         legend.title = element_text(size=16, face="bold"),
         legend.text = element_text(size =16),
         legend.background = element_rect(colour = 'transparent', fill = 'transparent'))+
@@ -79,7 +78,7 @@ h1 <- ggplot(gsum, aes(x = species, y = bs, fill = nest))+
   geom_text(aes(label = paste0(weight, "g"), y = 0.9, hjust = 1, family = "serif"), size = 5)
 
 
-#ggsave("plot_NS_3.png", h1, height = 7, width = 7, dpi = 600)
+#ggsave("plot_NS_3.png", h1, height = 7, width = 9, dpi = 600)
 
 # Mixed effects models for Gough species
 # Explore possible outliers

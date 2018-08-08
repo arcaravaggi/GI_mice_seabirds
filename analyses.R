@@ -1,3 +1,5 @@
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path))
+
 library(ggplot2)
 library(Rmisc)
 library(lme4)
@@ -98,28 +100,29 @@ gDat$wscale <- linMap(gDat$weight, 0, 1)
 
 # transform breeding success so that model residuals are normal and variances are equal
 gDat$bs2 <- sqrt(gDat$bs) 
+
 df <- data.frame(species = unique(gDat$species), s2 = 1:10)
 gDat <- merge(gDat, df, by = "species")
 
-wr.fit1 <- glmer(bs2 ~ (1|y2), family = binomial, data = gDat)
-wr.fit2 <- glmer(bs2 ~ s2 + (1|y2), family = binomial, data = gDat)
-wr.fit3 <- glmer(bs2 ~ nest +  (1|y2), family = binomial, data = gDat)
-wr.fit4 <- glmer(bs2 ~ season + (1|y2), family = binomial, data = gDat)
-wr.fit5 <- glmer(bs2 ~ wscale + (1|y2), family = binomial, data = gDat)
-wr.fit6 <- glmer(bs2 ~ s2 + nest + (1|y2), family = binomial, data = gDat)
-wr.fit7 <- glmer(bs2 ~ s2 + season + (1|y2), family = binomial, data = gDat)
-wr.fit8 <- glmer(bs2 ~ s2 + wscale + (1|y2), family = binomial, data = gDat)
-wr.fit9 <- glmer(bs2 ~ nest + season + (1|y2), family = binomial, data = gDat)
-wr.fit10 <- glmer(bs2 ~ nest + wscale + (1|y2), family = binomial, data = gDat)
-wr.fit11 <- glmer(bs2 ~ season + wscale + (1|y2), family = binomial, data = gDat)
-wr.fit12 <- glmer(bs2 ~ s2 + nest + season + (1|y2), family = binomial, data = gDat)
-wr.fit13 <- glmer(bs2 ~ s2 + nest + wscale + (1|y2), family = binomial, data = gDat)
-wr.fit14 <- glmer(bs2 ~ s2 + season + wscale + (1|y2), family = binomial, data = gDat)
-wr.fit15 <- glmer(bs2 ~ nest + season + wscale + (1|y2), family = binomial, data = gDat)
-wr.fit16 <- glmer(bs2 ~ s2 + nest + season + wscale + (1|y2), family = binomial, data = gDat, na.action=na.fail)
+wr.fit1 <- glmer(bs2 ~ (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit2 <- glmer(bs2 ~ s2 + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit3 <- glmer(bs2 ~ nest +  (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit4 <- glmer(bs2 ~ season + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit5 <- glmer(bs2 ~ wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit6 <- glmer(bs2 ~ s2 + nest + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit7 <- glmer(bs2 ~ s2 + season + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit8 <- glmer(bs2 ~ s2 + wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit9 <- glmer(bs2 ~ nest + season + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit10 <- glmer(bs2 ~ nest + wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit11 <- glmer(bs2 ~ season + wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit12 <- glmer(bs2 ~ s2 + nest + season + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit13 <- glmer(bs2 ~ s2 + nest + wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit14 <- glmer(bs2 ~ s2 + season + wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit15 <- glmer(bs2 ~ nest + season + wscale + (1|y2) + (1|s2), family = binomial, data = gDat, na.action = "na.fail")
+wr.fit16 <- glmer(bs2 ~ s2 + nest + season + wscale + (1|y2) + (s2), family = binomial, data = gDat, na.action = "na.fail")
 anova(wr.fit5, wr.fit8)
-histogram(residuals(wr.fit5))
-qqnorm(residuals(wr.fit5))
+histogram(residuals(wr.fit10))
+qqnorm(residuals(wr.fit10))
 
 # Use broom to extract model components and save into data frame objects
 # Extract variable stats using tidy, e.g.:
@@ -150,8 +153,33 @@ modcomp <- data.frame(mod = sprintf("wr.fit%d",seq(1:16)),
                              (AIC(wr.fit1)-AIC(wr.fit13))*log2(exp(1)),
                              (AIC(wr.fit1)-AIC(wr.fit14))*log2(exp(1)),
                              (AIC(wr.fit1)-AIC(wr.fit15))*log2(exp(1)),
-                             (AIC(wr.fit1)-AIC(wr.fit16))*log2(exp(1))
-                      ))
+                             (AIC(wr.fit1)-AIC(wr.fit16))*log2(exp(1))),
+                      call = c(paste(tidy(wr.fit1)[,1], collapse=" "),
+                               paste(tidy(wr.fit2)[,1], collapse=" "),
+                               paste(tidy(wr.fit3)[,1], collapse=" "),
+                               paste(tidy(wr.fit4)[,1], collapse=" "),
+                               paste(tidy(wr.fit5)[,1], collapse=" "),
+                               paste(tidy(wr.fit6)[,1], collapse=" "),
+                               paste(tidy(wr.fit7)[,1], collapse=" "),
+                               paste(tidy(wr.fit8)[,1], collapse=" "),
+                               paste(tidy(wr.fit9)[,1], collapse=" "),
+                               paste(tidy(wr.fit10)[,1], collapse=" "),
+                               paste(tidy(wr.fit11)[,1], collapse=" "),
+                               paste(tidy(wr.fit12)[,1], collapse=" "),
+                               paste(tidy(wr.fit13)[,1], collapse=" "),
+                               paste(tidy(wr.fit14)[,1], collapse=" "),
+                               paste(tidy(wr.fit15)[,1], collapse=" "),
+                               paste(tidy(wr.fit16)[,1], collapse=" ")
+                               ))
+
+# Tidy column for variables
+y <- as.character(modcomp$call)
+y <- y %>% gsub("\\s*\\([^\\)]+\\)","",.) %>% gsub("sd_.y2", "",.) %>% gsub("sd_.s2", "",.) %>%
+  gsub("seasonw", "b", .) %>% gsub("s2", "s", .) %>% gsub("nestb", "n", .) %>%
+  gsub("wscale", "w", .) 
+modcomp$call <- y
+modcomp$dAIC <- modcomp$AIC - min(modcomp$AIC)
+
 # Compare models
 modcomp
 
@@ -169,13 +197,15 @@ confint(mbDat.avg, level = 0.95)
 
 
 # Mixed effects model between Gough-analogue pairs
-anDat$bs2 <- sqrt(anDat$bs) # tranformation for normality
+b <- data.frame(species = unique(anDat$species),
+                abb = c("ATPE", "AYNA", "BRBP", "GRPE", "GRSH", "MGPE", "SGPE", "SOAL", "SOPE", "TRAL",
+                        "ISL1", "ISL2", "ISL3", "ISL4", "ISL5", "ISL6", "ISL7"))
+anDat <- merge(anDat, b, by = "species")
 
-ga.fit1 <- glmer(bs ~ (1|y2), family=binomial, data = anDat)
-ga.fit2 <- glmer(bs ~ l2 + (1|y2), family=binomial, data = anDat)
+ga.fit1 <- glmer(bs ~ (1|y2) + (1|abb), family=binomial, data = anDat)
+ga.fit2 <- glmer(bs ~ l2 + (1|y2) + (1|abb), family=binomial, data = anDat)
 anova(ga.fit1, ga.fit2)
-
-
+summary(ga.fit2)
 
 
 # Comparative productivity

@@ -4,7 +4,7 @@ Data and R scripts relating to the methods described in Caravaggi A, Cuthbert RJ
 
 ### Contents
 
-**[Gough_Island_Mice.R](https://github.com/arcaravaggi/Gough_seabirds/blob/master/Gough_island_mice.R)** - All annotated code including custom functions and plots.    
+**[analyses.R](https://github.com/arcaravaggi/GI_mice_seabirds/blob/master/analyses.R)** - All annotated code including custom functions and plots.    
 
 **[giDAT.csv](https://github.com/arcaravaggi/GI_mice_seabirds/blob/master/giDAT.csv)** - Aggregated breeding success data for Gough Island and paired analogue species.   
 

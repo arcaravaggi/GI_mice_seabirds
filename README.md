@@ -1,6 +1,6 @@
 # Gough_seabirds
 
-Data and R scripts relating to the methods described in Caravaggi A, Cuthbert RJ, Ryan PG, Cooper J, Bond A. The impacts of introduced house mice on the breeding success of nesting seabirds on Gough Island.  
+Data and R scripts relating to the methods described in Caravaggi A, Cuthbert RJ, Ryan PG, Cooper J, Bond A. (*in press*) The impacts of introduced house mice on the breeding success of nesting seabirds on Gough Island. *Ibis*.
 
 ### Contents
 
